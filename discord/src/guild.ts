@@ -1,4 +1,4 @@
-// The Codync server: adding members, the GitHub roles they earn, and the staff channel notice.
+// The Codync server: adding members, the GitHub roles they earn, and posting to its channels.
 
 import { json } from "./http.ts";
 import type { Env } from "./index.ts";
@@ -20,11 +20,19 @@ export const names = (list: Role[]) => list.map((r) => r.name).join(" and ");
 export const profile = (login: string) => `[${login}](https://github.com/${login})`;
 
 const bot = (env: Env) => ({ Authorization: `Bot ${env.DISCORD_BOT_TOKEN}` });
-const github = (env: Env) => ({ headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, "User-Agent": "codync-discord" } });
+export const github = (env: Env) => ({ headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, "User-Agent": "codync-discord" } });
 
 /** The account's current login; names in connections go stale after a rename, ids don't. */
 export async function githubLogin(env: Env, githubId: string): Promise<string> {
   return (await json<{ login: string }>(`https://api.github.com/user/${githubId}`, github(env))).login;
+}
+
+/** The GitHub user id behind a login, or null when there's no such account. */
+export async function githubId(env: Env, login: string): Promise<string | null> {
+  const res = await fetch(`https://api.github.com/users/${login}`, github(env));
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`user ${login} ${res.status}: ${await res.text()}`);
+  return String((await res.json<{ id: number }>()).id);
 }
 
 /** Roles the GitHub account has earned in the repo so far. */
@@ -63,13 +71,22 @@ export async function grant(env: Env, discordId: string, earned: Role[], reason:
   return missing;
 }
 
-/** Posts to the staff channel. A failure is logged and never fails the member's flow. */
-export async function notify(env: Env, content: string): Promise<void> {
-  const res = await fetch(`${DISCORD}/channels/${env.STAFF_CHANNEL_ID}/messages`, {
+/**
+ * Posts to a channel and says whether it went out. A failure is logged and never fails the caller's flow.
+ * Only the mention kinds in `pings` notify anyone (none by default).
+ */
+export async function send(env: Env, channelId: string, content: string, pings: "everyone"[] = []): Promise<boolean> {
+  const res = await fetch(`${DISCORD}/channels/${channelId}/messages`, {
     method: "POST",
     headers: { ...bot(env), "Content-Type": "application/json" },
-    // No pings; flag 4 drops link previews.
-    body: JSON.stringify({ content, allowed_mentions: { parse: [] }, flags: 4 }),
+    // Flag 4 drops link previews.
+    body: JSON.stringify({ content, allowed_mentions: { parse: pings }, flags: 4 }),
   });
-  if (!res.ok) console.error("notify failed", { status: res.status, body: await res.text() });
+  if (!res.ok) console.error("send failed", { channel: channelId, status: res.status, body: await res.text() });
+  return res.ok;
+}
+
+/** Posts to the staff channel. */
+export async function notify(env: Env, content: string): Promise<void> {
+  await send(env, env.STAFF_CHANNEL_ID, content);
 }

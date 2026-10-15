@@ -244,6 +244,13 @@ For release-by-release changes, see [GitHub Releases](https://github.com/leepoka
 
 Clients and the host each name the oldest version of the other they still work with (`minApp` in the host's `hello`, `minHost` in each client), so an app can meet an older or newer host. Details: [compatibility](docs/reference/compatibility.md).
 
+## Contact
+
+- Email: [kevin@codync.dev](mailto:kevin@codync.dev)
+- Questions and bug reports: [GitHub Issues](https://github.com/leepokai/Codync/issues) or [Discord](https://discord.gg/KBAX3Qznxh)
+- Security issues: report privately as described in [SECURITY.md](SECURITY.md) (GitHub private reporting or email)
+- Community rules: [Code of Conduct](CODE_OF_CONDUCT.md)
+
 ## Credits
 
 The desktop notch island's design is inspired by the work of [@novra.design](https://www.instagram.com/novra.design/).
@@ -251,3 +258,13 @@ The desktop notch island's design is inspired by the work of [@novra.design](htt
 ## License
 
 Apache 2.0 for the code (see [NOTICE](NOTICE)); versions up to 2.11.0 were MIT. The Codync name, logo and the Codync Cloud relay are not covered, and hosted or multi-tenant services must run their own relay and accounts: see [TRADEMARK.md](TRADEMARK.md).
+
+## Star History
+
+<a href="https://www.star-history.com/#leepokai/Codync&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=leepokai/Codync&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=leepokai/Codync&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=leepokai/Codync&type=Date" />
+ </picture>
+</a>
